@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 800px;
+        margin-top: 50px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        margin-bottom: 20px;
+      }
+      .btn-logout {
+        margin-bottom: 20px;
+      }
+      .action-buttons {
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Welcome to the Dashboard</h2>
+      <button class="btn btn-danger btn-logout" onclick="logout()">
+        Logout
+      </button>
+      <div class="action-buttons">
+        <button id="downloadCsv" onclick="downloadCsv()" class="btn btn-success">
+          Download CSV
+        </button>
+        <button
+          id="downloadPdf"
+          onclick="downloadPdf()"
+          class="btn btn-secondary"
+        > 
+          Download PDF
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Redirect to login page if token is not found
+      if (!localStorage.getItem("token")) {
+        window.location.href = "/usermanagement/login.html";
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem("token"); // Clear token from storage
+        window.location.href = "/usermanagement/login.html"; // Redirect to login
+      }
+
+      async function downloadCsv() {
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/users/export/csv/"
+          );
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          // Create a temporary link element
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "users.csv";
+
+          // Append to the DOM, trigger the download, and remove the element
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Release the URL
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("There was an error with the download:", error);
+        }
+      }
+      async function downloadPdf() {
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/users/export/pdf/"
+          );
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          // Create a temporary link element
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "users.pdf";
+
+          // Append to the DOM, trigger the download, and remove the element
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Release the URL
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("There was an error with the download:", error);
+        }
+      }
+
+      // Add click event listener to the button
+      document
+        .getElementById("downloadCsv")
+        .addEventListener("click", downloadCsv);
+      function copyToken(token) {
+        navigator.clipboard.writeText(token).then(
+          () => {
+            alert("Token copied to clipboard!");
+          },
+          (err) => {
+            alert("Failed to copy token: " + err);
+          }
+        );
+      }
+      document
+        .getElementById("downloadPdf")
+        .addEventListener("click", downloadPdf);
+      function copyToken(token) {
+        navigator.clipboard.writeText(token).then(
+          () => {
+            alert("Token copied to clipboard!");
+          },
+          (err) => {
+            alert("Failed to copy token: " + err);
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
